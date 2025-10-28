@@ -1,4 +1,7 @@
+import 'dart:io';
+import 'package:csv/csv.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/transaction_model.dart';
 import '../models/budget_model.dart';
@@ -139,4 +142,40 @@ class DBHelper {
     return await db.delete('budgets', where: 'id = ?', whereArgs: [id]);
   }
 
+  // ---- CSV export ----
+  static Future<String> exportTransactionsToCsv() async {
+    final txns = await getAllTransactions();
+    final rows = <List<dynamic>>[];
+    rows.add(['id', 'title', 'amount', 'category', 'isIncome', 'date']);
+    for (var t in txns) {
+      rows.add([
+        t.id,
+        t.title,
+        t.amount,
+        t.category,
+        t.isIncome ? 1 : 0,
+        t.date.toIso8601String(),
+      ]);
+    }
+
+    final csv = const ListToCsvConverter().convert(rows);
+
+    Directory dir;
+    try {
+      // Try Flutter directory (works in app)
+      dir = await getApplicationDocumentsDirectory();
+    } catch (e) {
+      // Fallback for tests (no platform channel available)
+      dir = Directory.systemTemp.createTempSync('spfe_csv_test');
+    }
+
+    final path = join(
+      dir.path,
+      'smart_expense_${DateTime.now().millisecondsSinceEpoch}.csv',
+    );
+
+    final file = File(path);
+    await file.writeAsString(csv);
+    return path;
+  }
 }
