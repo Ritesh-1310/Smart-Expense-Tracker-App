@@ -22,8 +22,8 @@ It follows **clean architecture**, uses **Riverpod for state management**, and i
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/spfe_tracker_app.git
-cd spfe_tracker_app
+git clone git@github.com:Ritesh-1310/Smart-Expense-Tracker-App.git
+cd Smart-Expense-Tracker-App
 ```
 
 ### 2. Install dependencies
